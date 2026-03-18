@@ -4,14 +4,25 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/errorHandler';
+import { connectDBs } from './config/database';
 
 const app = express();
+
+// Database connection check middleware for serverless/cold starts
+app.use(async (req, res, next) => {
+  try {
+    await connectDBs();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? process.env.FRONTEND_URL 
-    : ['https://pennysync.netlify.app', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
+    : ['https://pennysync.netlify.app', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
   credentials: true,
 }));
 
